@@ -20,6 +20,10 @@ def extract_data_to_csv(path: str, path_for_extracted_data: str) -> None:
     with ZipFile(path, 'r') as zip_obj:
         zip_obj.extractall(path_for_extracted_data)
 
+def main(path, path_for_extracted_data, url):
+    download_data_zip(url, path)
+    extract_data_to_csv(path, path_for_extracted_data)
+
 URL = 'https://storage.googleapis.com/kaggle-data-sets/1120859/1882037/bundle/archive.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-' \
       'com@kaggle-161607.iam.gserviceaccount.com/20220124/auto/storage/goog4_request&X-Goog-Date=20220124T220940Z&X-Goog-Expires=259199&X-Goog-SignedHeaders=host&X-' \
       'Goog-Signature=6e7dbd2810026828a04fe1223925fd93399d50029450157bf8834713383a533f91d466863602bd6bc3765ed102680a0b60d2daf42262aa7eb67d3ccc184c0278eb43a426bc19e298c5bb94ea4f' \
@@ -28,10 +32,6 @@ URL = 'https://storage.googleapis.com/kaggle-data-sets/1120859/1882037/bundle/ar
 
 PATH = '../API/data.zip'
 PATH_FOR_EXTRACTED_DATA = '../API/data'
-
-def main(path, path_for_extracted_data, url):
-    download_data_zip(url, path)
-    extract_data_to_csv(path, path_for_extracted_data)
 
 if __name__ == '__main__':
     main(PATH, PATH_FOR_EXTRACTED_DATA, URL)
