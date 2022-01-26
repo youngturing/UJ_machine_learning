@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 
 
 st.write("""
-# Simple Stroke Probability Prediction App
+# Stroke Probability Prediction App
 """)
 st.subheader('Class labels and their corresponding index number:')
 classes_df = pd.DataFrame({'Stroke':['No','Yes']})
@@ -149,7 +149,7 @@ if make_predcition_button:
         features_for_pred = get_data(age,hypertension,heart_disease,ever_married,
                                      work_type,avg_glucose_level,smoking_status)
         features_for_pred_df = show_data(features_for_pred)
-        filename = 'C:/Users/miko5/Desktop/TDS/UJ_ML/ML_Project/Model/stroke_model.sav'
+        filename = 'C:/Users/miko5/Desktop/TDS/UJ_ML/ML_Project/Model/stroke_model_DTC.sav'
         score = make_predcition(filename,features_for_pred_df)
         prediction_score_plot(score[0][0] * 100)
     except ValueError as e:
