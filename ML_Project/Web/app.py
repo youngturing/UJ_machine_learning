@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 
 
 st.write("""
-# Stroke Probability Prediction App
+# Stroke Prediction App
 """)
 st.subheader('Class labels and their corresponding index number:')
 classes_df = pd.DataFrame({'Stroke':['No','Yes']})
@@ -120,7 +120,8 @@ def make_predcition(filename: str,features_for_pred_df: pd.DataFrame):
     """
     loaded_model = pickle.load(open(filename, 'rb'))
     score = loaded_model.predict_proba(features_for_pred_df)
-    st.subheader(f'Prediction Probability: {score[0][0] * 100}% ')
+    score_pred = "{:.2f}".format((score[0][1]))
+    st.subheader(f'Prediction Probability: {score_pred}% ')
     return score
 
 def prediction_score_plot(score: float):
@@ -132,11 +133,11 @@ def prediction_score_plot(score: float):
             'weight': 'bold',
             'size': 6}
     plt.rc('font', **font)
-    fig, ax = plt.subplots(figsize=(4.2, 3.1))
+    fig, ax = plt.subplots(figsize=(3, 3.3))
     plt.gca().cla()
     xlab = ['Score']
     plt.ylim(0.0, 100.0)
-    plt.bar(xlab, score, align='center', color='red')
+    plt.bar(xlab, score, align='center', color='red',width=0.1)
     plt.ylabel(f'Predicted stroke probability')
     ax.yaxis.set_major_formatter(mtick.PercentFormatter())
     plt.savefig('risk_plot.png')
@@ -149,8 +150,8 @@ if make_predcition_button:
         features_for_pred = get_data(age,hypertension,heart_disease,ever_married,
                                      work_type,avg_glucose_level,smoking_status)
         features_for_pred_df = show_data(features_for_pred)
-        filename = 'C:/Users/miko5/Desktop/TDS/UJ_ML/ML_Project/Model/stroke_model_DTC.sav'
+        filename = 'C:/Users/miko5/Desktop/TDS/UJ_ML/ML_Project/Model/stroke_model_LogReg_scikit.sav'
         score = make_predcition(filename,features_for_pred_df)
-        prediction_score_plot(score[0][0] * 100)
+        prediction_score_plot(score[0][1] * 100)
     except ValueError as e:
         st.error(f'There is missing data in your input information. Please enter a valid input.{e}')

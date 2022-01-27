@@ -3,10 +3,13 @@ import pandas as pd
 from imblearn.over_sampling import SMOTE
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 from typing import Any
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
+from sklearn import preprocessing
 import pickle
+import tensorflow as tf
 
 class LoadAndTransform:
     def load_data(path:str) -> pd.DataFrame:
@@ -25,14 +28,18 @@ class LoadAndTransform:
                  y_train, y_test: test data and labels without oversampling
         """
         data,labels = raw_data.iloc[:,:7],raw_data['stroke']
+        RANDOM_SEED = 40
+        tf.random.set_seed(RANDOM_SEED)
         X_train, X_test, y_train, y_test = train_test_split(data, labels,
                                                             test_size=0.3,
-                                                            random_state=0,
+                                                            random_state=RANDOM_SEED,
                                                             shuffle=True,
-                                                            stratify=labels)
-        oversampled = SMOTE(random_state=0)
-        X_train_smote, y_train_smote = oversampled.fit_sample(X_train, y_train)
-        return X_train_smote, X_test, y_train_smote, y_test
+                                                            )
+        scaler = preprocessing.StandardScaler().fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
+        # X_train_smote, y_train_smote = oversampled.fit_sample(X_train, y_train)
+        return X_train, X_test, y_train, y_test
 
 class LDA_Model:
     def __init__(self, x_train, x_test, y_train, y_test):
@@ -40,16 +47,11 @@ class LDA_Model:
         self.x_test = x_test
         self.y_train = y_train
         self.y_test = y_test
-        self.classifier_smote = DecisionTreeClassifier(ccp_alpha=0.0, class_weight=None, criterion='gini',
-                                                       max_depth=None, max_features=None, max_leaf_nodes=None,
-                                                       min_impurity_decrease=0.0, min_impurity_split=None,
-                                                       min_samples_leaf=1, min_samples_split=2,
-                                                       min_weight_fraction_leaf=0.0, presort='deprecated',
-                                                       random_state=2048, splitter='best')
+        self.classifier_smote = LogisticRegression(multi_class='ovr')
 
     def train_and_save(self):
         model = self.classifier_smote.fit(self.x_train, self.y_train)
-        filename = 'stroke_model_DTC.sav'
+        filename = 'stroke_model_LogReg_scikit.sav'
         pickle.dump(model, open(filename, 'wb'))
 
 
@@ -57,9 +59,9 @@ class LDA_Model:
 if '__main__' == __name__:
     lt = LoadAndTransform
     raw_data = lt.load_data('../API/data/stroke_data_transformed.csv')
-    X_train_smote, X_test, y_train_smote, y_test = lt.transform_data(raw_data)
-    lda = LDA_Model(X_train_smote, X_test, y_train_smote, y_test)
+    X_train, X_test, y_train, y_test = lt.transform_data(raw_data)
+    lda = LDA_Model(X_train, X_test, y_train, y_test)
     lda.train_and_save()
-    loaded_model = pickle.load(open('stroke_model_DTC.sav', 'rb'))
+    loaded_model = pickle.load(open('stroke_model_LogReg_scikit.sav', 'rb'))
     y_pred = loaded_model.predict(X_test)
     print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
