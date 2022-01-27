@@ -37,6 +37,8 @@ data = {'age':age
     ,'smoking_status':smoking_status
         }
 
+input = pd.DataFrame(data)
+
 #####################################################
 
 def get_data(age,hypertension,heart_disease,ever_married,
@@ -92,9 +94,10 @@ def get_data(age,hypertension,heart_disease,ever_married,
                          }
     return features_for_pred
 
-def show_data(data: dict):
+def show_data(data: dict, data_input: pd.DataFrame):
     """
     :param data: dictionary with transformed data from user input
+    :param data_input: input from user
     :return pd.DataFrame with features for prediction
     """
     features = pd.DataFrame(data)
@@ -107,7 +110,7 @@ def show_data(data: dict):
     features_for_pred_df['avg_glucose_level'].astype(np.float)
     features_for_pred_df['smoking_status'].astype(np.int)
     st.subheader('User Input parameters:')
-    st.write(features)
+    st.write(data_input)
     st.subheader('Encoded User Input parameters:')
     st.write(features_for_pred_df)
     return features_for_pred_df
@@ -149,8 +152,8 @@ if make_predcition_button:
     try:
         features_for_pred = get_data(age,hypertension,heart_disease,ever_married,
                                      work_type,avg_glucose_level,smoking_status)
-        features_for_pred_df = show_data(features_for_pred)
-        filename = 'C:/Users/miko5/Desktop/TDS/UJ_ML/ML_Project/Model/stroke_model_LogReg_scikit.sav'
+        features_for_pred_df = show_data(features_for_pred,input)
+        filename = 'C:/Users/miko5/Desktop/TDS/UJ_ML/ML_Project/Model/stroke_model_DT_scikit.sav'
         score = make_predcition(filename,features_for_pred_df)
         prediction_score_plot(score[0][1] * 100)
     except ValueError as e:

@@ -47,11 +47,16 @@ class LDA_Model:
         self.x_test = x_test
         self.y_train = y_train
         self.y_test = y_test
-        self.classifier_smote = LogisticRegression(multi_class='ovr')
+        self.classifier_smote = DecisionTreeClassifier(ccp_alpha=0.0, class_weight=None, criterion='gini',
+                                                       max_depth=None, max_features=None, max_leaf_nodes=None,
+                                                       min_impurity_decrease=0.0, min_impurity_split=None,
+                                                       min_samples_leaf=1, min_samples_split=2,
+                                                       min_weight_fraction_leaf=0.0, presort='deprecated',
+                                                       random_state=2048, splitter='best')
 
     def train_and_save(self):
         model = self.classifier_smote.fit(self.x_train, self.y_train)
-        filename = 'stroke_model_LogReg_scikit.sav'
+        filename = 'stroke_model_DT_scikit.sav'
         pickle.dump(model, open(filename, 'wb'))
 
 
@@ -62,6 +67,6 @@ if '__main__' == __name__:
     X_train, X_test, y_train, y_test = lt.transform_data(raw_data)
     lda = LDA_Model(X_train, X_test, y_train, y_test)
     lda.train_and_save()
-    loaded_model = pickle.load(open('stroke_model_LogReg_scikit.sav', 'rb'))
+    loaded_model = pickle.load(open('stroke_model_DT_scikit.sav', 'rb'))
     y_pred = loaded_model.predict(X_test)
     print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
