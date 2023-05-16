@@ -11,6 +11,7 @@ from sklearn import preprocessing
 import pickle
 import tensorflow as tf
 
+
 class LoadAndTransform:
     def load_data(path:str) -> pd.DataFrame:
         """
@@ -39,6 +40,7 @@ class LoadAndTransform:
         X_train_smote, y_train_smote = oversampled.fit_sample(X_train, y_train)
         return X_train_smote, X_test, y_train_smote, y_test
 
+    
 class LDA_Model:
     def __init__(self, x_train, x_test, y_train, y_test):
         self.x_train = x_train
@@ -54,7 +56,6 @@ class LDA_Model:
         pickle.dump(model, open(filename, 'wb'))
 
 
-
 if '__main__' == __name__:
     lt = LoadAndTransform
     raw_data = lt.load_data('../API/data/stroke_data_transformed.csv')
@@ -66,3 +67,4 @@ if '__main__' == __name__:
     print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
     print("f1_score:", metrics.f1_score(y_test, y_pred))
     print("Precision:", metrics.precision_score(y_test, y_pred))
+    
