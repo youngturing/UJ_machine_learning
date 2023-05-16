@@ -17,7 +17,6 @@ st.write("""
 st.subheader('Class labels and their corresponding index number:')
 classes_df = pd.DataFrame({'Stroke':['No','Yes']})
 st.write(classes_df)
-#####################################################
 
 st.sidebar.header('User Input Parameters')
 age = st.sidebar.slider('Age', 10, 99, 1)
@@ -39,7 +38,6 @@ data = {'age':age
 
 input = pd.DataFrame(data)
 
-#####################################################
 
 def get_data(age,hypertension,heart_disease,ever_married,
              work_type,avg_glucose_level,smoking_status):
@@ -94,6 +92,7 @@ def get_data(age,hypertension,heart_disease,ever_married,
                          }
     return features_for_pred
 
+
 def show_data(data: dict, data_input: pd.DataFrame):
     """
     :param data: dictionary with transformed data from user input
@@ -115,6 +114,7 @@ def show_data(data: dict, data_input: pd.DataFrame):
     st.write(features_for_pred_df)
     return features_for_pred_df
 
+
 def make_predcition(filename: str,features_for_pred_df: pd.DataFrame):
     """
     :param filename: path to model
@@ -130,8 +130,6 @@ def make_predcition(filename: str,features_for_pred_df: pd.DataFrame):
         st.subheader(f'Prediction Probability: plausible')
     return score
 
-#####################################################
-
 if make_predcition_button:
     try:
         features_for_pred = get_data(age,hypertension,heart_disease,ever_married,
@@ -141,3 +139,4 @@ if make_predcition_button:
         score = make_predcition(filename,features_for_pred_df)
     except ValueError as e:
         st.error(f'There is missing data in your input information. Please enter a valid input.{e}')
+        
