@@ -7,6 +7,9 @@ __pycache__/
 # C extensions
 *.so
 
+# zip files with data
+*.zip
+
 # Distribution / packaging
 .Python
 build/
