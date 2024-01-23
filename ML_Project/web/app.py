@@ -115,7 +115,7 @@ if make_predcition_button:
     try:
         features_for_pred = get_data(age, hypertension, heart_disease, ever_married, avg_glucose_level)
         features_for_pred_df = show_data(features_for_pred, input)
-        filename = '../Model/stroke_model_LogReg_scikit.sav'
+        filename = '../model/stroke_model_LogReg_scikit.sav'
         score = make_predcition(filename, features_for_pred_df)
     except ValueError as e:
         st.error(f'There is missing data in your input information. Please enter a valid input.\n{e}')
