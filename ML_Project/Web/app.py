@@ -3,54 +3,66 @@ import streamlit as st
 import pandas as pd
 import pickle
 import warnings
+
 warnings.filterwarnings('ignore')
 
-st.write("""
-# Stroke Prediction App
-""")
+st.write("""# Stroke Prediction App""")
 st.subheader('Class labels and their corresponding index number:')
-classes_df = pd.DataFrame({'Stroke':['No','Yes']})
+classes_df = pd.DataFrame({'Stroke': ['No', 'Yes']})
 st.write(classes_df)
-#####################################################
 
 st.sidebar.header('User Input Parameters')
-gender = st.sidebar.multiselect('Gneder', options = ['Male','Female'])
+gender = st.sidebar.multiselect('Gneder', options=['Male', 'Female'])
 age = st.sidebar.slider('Age', 10, 99, 1)
-hypertension = st.sidebar.multiselect('Hypertension: ', options= ['Yes','No'])
-heart_disease = st.sidebar.multiselect('Heart disease: ', options= ['Yes','No'])
-ever_married = st.sidebar.multiselect('Ever married: ', options= ['Yes','No'])
-work_type = st.sidebar.multiselect('Work type: ', options= ['Private','Self-employed','Government job','Childcare','Never worked'])
-residence_type = st.sidebar.multiselect('Residence type: ', options= ['Rural','Urban'])
+hypertension = st.sidebar.multiselect('Hypertension: ', options=['Yes', 'No'])
+heart_disease = st.sidebar.multiselect('Heart disease: ', options=['Yes', 'No'])
+ever_married = st.sidebar.multiselect('Ever married: ', options=['Yes', 'No'])
+work_type = st.sidebar.multiselect('Work type: ', options=[
+    'Private', 'Self-employed', 'Government job', 'Childcare', 'Never worked'
+])
+
+residence_type = st.sidebar.multiselect('Residence type: ', options=['Rural', 'Urban'])
 avg_glucose_level = st.sidebar.slider('Average glucose level:', 30.0, 350.0, 1.0)
 bmi = st.sidebar.slider('BMI:', 15.0, 70.0, 0.5)
-smoking_status = st.sidebar.multiselect('Smoking status: ', options= ['never smoked','Unknown','formerly smoked','smokes'])
+smoking_status = st.sidebar.multiselect('Smoking status: ', options=[
+    'never smoked', 'Unknown', 'formerly smoked', 'smokes'
+])
+
 make_predcition_button = st.sidebar.button('Load data and predict')
 data = {
     'gender': gender,
-    'age':age,
-    'hypertension':hypertension,
-    'heart_disease':heart_disease,
-    'ever_married':ever_married,
+    'age': age,
+    'hypertension': hypertension,
+    'heart_disease': heart_disease,
+    'ever_married': ever_married,
     'residence_type': residence_type,
-    'work_type':work_type,
-    'avg_glucose_level':avg_glucose_level,
+    'work_type': work_type,
+    'avg_glucose_level': avg_glucose_level,
     'bmi': bmi,
-    'smoking_status':smoking_status,
-        }
+    'smoking_status': smoking_status,
+}
 
 input = pd.DataFrame(data)
 
-#####################################################
 
 def get_data(gender, age, hypertension, heart_disease, ever_married,
              work_type, residence_type, avg_glucose_level, bmi, smoking_status):
     """
-    :param hypertension_features: hypertension value from user input
-    :param heart_disease_features: heart_disease value from user input
-    :param ever_married_features: ever_married value from user input
-    :param work_type_features: work_type value from user input
-    :param smoking_status_features: smoking_status value from user input
-    :return: dictionary with transformed data from user input
+    Parameters
+    ----------
+        gender
+        age
+        hypertension
+        heart_disease
+        ever_married
+        work_type
+        residence_type
+        avg_glucose_level
+        bmi
+        smoking_status
+    Returns
+    -------
+        features_for_pred: dictionary with categorical features for prediction.
     """
     if gender[0] == 'Male':
         gender_features = 0
@@ -111,12 +123,18 @@ def get_data(gender, age, hypertension, heart_disease, ever_married,
     }
     return features_for_pred
 
+
 def show_data(data: dict, data_input: pd.DataFrame):
     """
-    :param data: dictionary with transformed data from user input
-    :param data_input: input from user
-    :return pd.DataFrame with features for prediction
+    Parameters
+    ----------
+        data: dictionary with transformed data from user input
+        data_input: input from user
+    Returns
+    -------
+        features: pd.DataFrame with features for prediction
     """
+
     features = pd.DataFrame(data)
     features_for_pred_df = pd.DataFrame(features_for_pred, index=[0])
     features_for_pred_df['gender'].astype(np.int)
@@ -135,11 +153,16 @@ def show_data(data: dict, data_input: pd.DataFrame):
     st.write(features_for_pred_df)
     return features
 
-def make_predcition(filename: str,features_for_pred_df: pd.DataFrame):
+
+def make_predcition(filename: str, features_for_pred_df: pd.DataFrame):
     """
-    :param filename: path to model
-    :param features_for_pred_df: pd.DataFrame with features for prediction
-    :return: prediction score and subheader
+    Parameters
+    ----------
+        filename: path to model
+        features_for_pred_df: pd.DataFrame with features for prediction
+    Returns
+    -------
+        score: prediction score and subheader
     """
     loaded_model = pickle.load(open(filename, 'rb'))
     score = loaded_model.predict(features_for_pred_df)
@@ -152,14 +175,13 @@ def make_predcition(filename: str,features_for_pred_df: pd.DataFrame):
         st.write(score)
     return score
 
-#####################################################
 
 if make_predcition_button:
     try:
         features_for_pred = get_data(gender, age, hypertension, heart_disease, ever_married,
                                      work_type, residence_type, avg_glucose_level, bmi, smoking_status)
-        features_for_pred_df = show_data(features_for_pred,input)
+        features_for_pred_df = show_data(features_for_pred, input)
         filename = 'C:/Users/miko5/Desktop/TDS/uj-ml/ML_Project/Model/stroke_model_LogReg_scikit.sav'
-        score = make_predcition(filename,features_for_pred_df)
+        score = make_predcition(filename, features_for_pred_df)
     except ValueError as e:
         st.error(f'There is missing data in your input information. Please enter a valid input.{e}')
