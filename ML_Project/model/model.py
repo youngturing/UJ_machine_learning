@@ -23,14 +23,6 @@ class LoadAndTransform:
         self.__path = path
 
     def _load_data(self) -> pd.DataFrame:
-        """
-        Parameters
-        ----------
-            path: path to transformed data from Stroke database
-        Returns
-        -------
-            raw_data: pd.Dataframe with raw data
-        """
         raw_data = pd.read_csv(self.__path)
         return raw_data
 
