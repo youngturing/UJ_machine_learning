@@ -14,6 +14,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 RANDOM_SEED = 42
+excel_filenames = 'stroke_models_metrics.xlsx'
+all_models_metrics = []
 
 
 class LoadAndTransform:
@@ -105,8 +107,6 @@ def main():
     x_train, x_test, y_train, y_test = LoadAndTransform.transform_data(raw_data=raw_data, use_smote=True)
     models = Models(x_train, x_test, y_train, y_test)
     models.train_models_and_save()
-    excel_filenames = 'stroke_models_metrics.xlsx'
-    all_models_metrics = []
     for model_name in models.model_names:
         loaded_model = pickle.load(open(model_name, 'rb'))
         y_pred = loaded_model.predict(x_test)
@@ -114,15 +114,13 @@ def main():
                 'f1_score': [metrics.f1_score(y_test, y_pred)],
                 'Precision': [metrics.precision_score(y_test, y_pred)],
                 'Recall': [metrics.recall_score(y_test, y_pred)]}
-        logger.info(data)
+        logger.info('Model: {}. Metrics: {}'.format(model_name, data))
         all_models_metrics.append(data)
-
     writer = pd.ExcelWriter(excel_filenames, engine='openpyxl')
-    for model_name, models_metrics in zip(models.model_names, all_models_metrics):
-        df = pd.DataFrame(models_metrics)
-        df.to_excel(writer, sheet_name=f'{model_name}')
-    writer.save()
-    writer.close()
+    with writer:
+        for model_name, models_metrics in zip(models.model_names, all_models_metrics):
+            df = pd.DataFrame(models_metrics)
+            df.to_excel(writer, sheet_name=f'{model_name}')
 
 
 if '__main__' == __name__:
