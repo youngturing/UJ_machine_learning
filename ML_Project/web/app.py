@@ -1,43 +1,47 @@
+import warnings
+from typing import Dict
+
 import streamlit as st
 import pandas as pd
 import pickle
-import warnings
 
 warnings.filterwarnings('ignore')
 
+# header
 st.write("""# Stroke Prediction App""")
-st.subheader('Class labels and their corresponding index number:')
-classes_df = pd.DataFrame({'Stroke': ['No', 'Yes']})
-st.write(classes_df)
+st.subheader('Class labels')
+st.write(
+    """Stroke prediction is the probability where 0% means there is no possibility of a stroke occurring
+        according to the algorithm."""
+)
 
+# sidebar
 st.sidebar.header('User Input Parameters')
+st.sidebar.info('Select all information below so that the system can make prediction')
 age = st.sidebar.slider('Age', 10, 99, 1)
 hypertension = st.sidebar.multiselect('Hypertension: ', options=['Yes', 'No'])
 heart_disease = st.sidebar.multiselect('Heart disease: ', options=['Yes', 'No'])
 ever_married = st.sidebar.multiselect('Ever married: ', options=['Yes', 'No'])
 avg_glucose_level = st.sidebar.slider('Average glucose level:', 30.0, 350.0, 1.0)
-
 make_predcition_button = st.sidebar.button('Load data and predict')
-data = {
-    'age': age,
-    'hypertension': hypertension,
-    'heart_disease': heart_disease,
-    'ever_married': ever_married,
-    'avg_glucose_level': avg_glucose_level,
-}
-print(data)
-input = pd.DataFrame(data)
+
+model_filename = '../model/stroke_model_LogReg_scikit.sav'
 
 
-def get_data(age, hypertension, heart_disease, ever_married, avg_glucose_level):
+def get_user_input() -> pd.DataFrame:
+    data = {
+        'age': age,
+        'hypertension': hypertension,
+        'heart_disease': heart_disease,
+        'ever_married': ever_married,
+        'avg_glucose_level': avg_glucose_level,
+    }
+    user_input = pd.DataFrame(data)
+    return user_input
+
+
+def get_data(age, hypertension, heart_disease, ever_married, avg_glucose_level) -> Dict:
     """
-    Parameters
-    ----------
-        age
-        hypertension
-        heart_disease
-        ever_married
-        avg_glucose_level
     Returns
     -------
         features_for_pred: dictionary with categorical features for prediction.
@@ -68,7 +72,7 @@ def get_data(age, hypertension, heart_disease, ever_married, avg_glucose_level):
     return features_for_prediction
 
 
-def show_data(data: dict, data_input: pd.DataFrame):
+def show_data(data: dict, data_input: pd.DataFrame) -> pd.DataFrame:
     """
     Parameters
     ----------
@@ -87,13 +91,13 @@ def show_data(data: dict, data_input: pd.DataFrame):
     features_for_pred_df['ever_married'].astype(int)
     features_for_pred_df['avg_glucose_level'].astype(float)
     st.subheader('User Input parameters:')
-    st.write(data_input)
+    st.dataframe(data_input, hide_index=True)
     st.subheader('Encoded User Input parameters:')
-    st.write(features_for_pred_df)
+    st.dataframe(features_for_pred_df, hide_index=True)
     return features
 
 
-def make_predcition(filename: str, features_for_pred_df: pd.DataFrame):
+def make_predcition(filename: str, features_for_pred_df: pd.DataFrame) -> None:
     """
     Parameters
     ----------
@@ -107,15 +111,16 @@ def make_predcition(filename: str, features_for_pred_df: pd.DataFrame):
     probas = loaded_model.predict_proba(features_for_pred_df)
     probability = probas[0][1]
     st.subheader('Stroke probability:')
-    st.write("{:.2%}".format(probability))
-    return probability
+    st.write("{:.1%}".format(probability))
 
 
 if make_predcition_button:
     try:
+        user_input = get_user_input()
         features_for_pred = get_data(age, hypertension, heart_disease, ever_married, avg_glucose_level)
-        features_for_pred_df = show_data(features_for_pred, input)
-        filename = '../model/stroke_model_LogReg_scikit.sav'
-        score = make_predcition(filename, features_for_pred_df)
+        features_for_pred_df = show_data(features_for_pred, user_input)
+        make_predcition(model_filename, features_for_pred_df)
     except ValueError as e:
         st.error(f'There is missing data in your input information. Please enter a valid input.\n{e}')
+    except Exception as e:
+        st.error(f'Unexpected error occurred:\n{e}')
