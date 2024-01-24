@@ -8,12 +8,11 @@ import pickle
 warnings.filterwarnings('ignore')
 
 # header
-st.write("""# Stroke Prediction App""")
-st.subheader('Class labels')
-st.write(
-    """Stroke prediction is the probability where 0% means there is no possibility of a stroke occurring
-        according to the algorithm."""
-)
+st.title('Stroke prediction app')
+st.header('Class labels')
+st.write('Stroke prediction is the probability where 0% means there is no possibility of a stroke occurring '
+         'according to the algorithm.'
+         )
 
 # sidebar
 st.sidebar.header('User Input Parameters')
@@ -97,6 +96,13 @@ def show_data(data: dict, data_input: pd.DataFrame) -> pd.DataFrame:
     return features
 
 
+def determine_color_and_write(proba: int) -> None:
+    if proba < 0.5:
+        st.write(':green[{:.1%}]'.format(proba))
+    else:
+        st.write(':red[{:.1%}]'.format(proba))
+
+
 def make_predcition(filename: str, features_for_pred_df: pd.DataFrame) -> None:
     """
     Parameters
@@ -111,7 +117,7 @@ def make_predcition(filename: str, features_for_pred_df: pd.DataFrame) -> None:
     probas = loaded_model.predict_proba(features_for_pred_df)
     probability = probas[0][1]
     st.subheader('Stroke probability:')
-    st.write("{:.1%}".format(probability))
+    determine_color_and_write(proba=probability)
 
 
 if make_predcition_button:
