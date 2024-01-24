@@ -1,4 +1,5 @@
 import pickle
+import logging
 
 import pandas as pd
 import tensorflow as tf
@@ -9,12 +10,17 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 RANDOM_SEED = 42
 
 
 class LoadAndTransform:
-    @staticmethod
-    def _load_data(path: str) -> pd.DataFrame:
+    def __init__(self, path='../data/stroke_data_transformed.csv'):
+        self.__path = path
+
+    def _load_data(self) -> pd.DataFrame:
         """
         Parameters
         ----------
@@ -23,7 +29,7 @@ class LoadAndTransform:
         -------
             raw_data: pd.Dataframe with raw data
         """
-        raw_data = pd.read_csv(path)
+        raw_data = pd.read_csv(self.__path)
         return raw_data
 
     @staticmethod
@@ -63,7 +69,6 @@ class Models:
         self.y_test = y_test
 
         self.lda = LinearDiscriminantAnalysis(
-            n_components=None, priors=None, shrinkage=None,
             solver='svd', store_covariance=False, tol=0.0001
         )
 
@@ -81,7 +86,7 @@ class Models:
             store_covariance=False, tol=0.0001
         )
 
-        self.log_reg = LogisticRegression(multi_class='ovr', max_iter=200)
+        self.log_reg = LogisticRegression(max_iter=200)
         self.models = [self.lda, self.decision_tree, self.log_reg, self.qda]
         self.model_names = [
             'stroke_model_LDA_scikit.sav', 'stroke_model_DT_scikit.sav',
@@ -95,20 +100,21 @@ class Models:
 
 
 def main():
-    raw_data = LoadAndTransform._load_data('../data/stroke_data_transformed.csv')
+    load_and_transform = LoadAndTransform()
+    raw_data = load_and_transform._load_data()
     x_train, x_test, y_train, y_test = LoadAndTransform.transform_data(raw_data=raw_data, use_smote=True)
     models = Models(x_train, x_test, y_train, y_test)
     models.train_models_and_save()
     excel_filenames = 'stroke_models_metrics.xlsx'
     all_models_metrics = []
-    for model_name in (models.model_names):
+    for model_name in models.model_names:
         loaded_model = pickle.load(open(model_name, 'rb'))
         y_pred = loaded_model.predict(x_test)
         data = {'Accuracy': [metrics.accuracy_score(y_test, y_pred)],
                 'f1_score': [metrics.f1_score(y_test, y_pred)],
                 'Precision': [metrics.precision_score(y_test, y_pred)],
                 'Recall': [metrics.recall_score(y_test, y_pred)]}
-        print(data)
+        logger.info(data)
         all_models_metrics.append(data)
 
     writer = pd.ExcelWriter(excel_filenames, engine='openpyxl')
