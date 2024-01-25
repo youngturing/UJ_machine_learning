@@ -1,18 +1,17 @@
-import warnings
 from typing import Dict
 
 import streamlit as st
 import pandas as pd
 import pickle
 
-warnings.filterwarnings('ignore')
 
 # header
 st.title('Stroke prediction app')
 st.header('Class labels')
-st.write('Stroke prediction is the probability where 0% means there is no possibility of a stroke occurring '
-         'according to the algorithm.'
-         )
+st.markdown('Stroke prediction is the probability where `0%` means there is no possibility of a stroke occurring '
+            'according to the algorithm. **Stroke prediction will be displayed below** after properly loading data '
+            'in the panel on the left and clicking **Load data and predict** button.'
+            )
 
 # sidebar
 st.sidebar.header('User Input Parameters')
