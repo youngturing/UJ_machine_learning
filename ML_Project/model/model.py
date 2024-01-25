@@ -14,7 +14,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 RANDOM_SEED = 42
-excel_filenames = 'stroke_models_metrics.xlsx'
 all_models_metrics = []
 
 
@@ -61,6 +60,8 @@ class Models:
         self.x_test = x_test
         self.y_train = y_train
         self.y_test = y_test
+        self.all_models_metrics = []
+        self.excel_filenames = 'stroke_models_metrics.xlsx'
 
         self.lda = LinearDiscriminantAnalysis(
             solver='svd', store_covariance=False, tol=0.0001
@@ -92,6 +93,25 @@ class Models:
             model = model.fit(self.x_train, self.y_train)
             pickle.dump(model, open(model_name, 'wb'))
 
+    def save_metrics(self):
+        writer = pd.ExcelWriter(self.excel_filenames, engine='openpyxl')
+        with writer:
+            for model_name, models_metrics in zip(self.model_names, self.all_models_metrics):
+                df = pd.DataFrame(models_metrics)
+                df.to_excel(writer, sheet_name=f'{model_name}')
+
+    def evaluate(self):
+        for model_name in self.model_names:
+            loaded_model = pickle.load(open(model_name, 'rb'))
+            y_pred = loaded_model.predict(self.x_test)
+            data = {'Accuracy': [metrics.accuracy_score(self.y_test, y_pred)],
+                    'f1_score': [metrics.f1_score(self.y_test, y_pred)],
+                    'Precision': [metrics.precision_score(self.y_test, y_pred)],
+                    'Recall': [metrics.recall_score(self.y_test, y_pred)]}
+            logger.info('Model: {}. Metrics: {}'.format(model_name, data))
+            self.all_models_metrics.append(data)
+            self.save_metrics()
+
 
 def main():
     load_and_transform = LoadAndTransform()
@@ -99,20 +119,7 @@ def main():
     x_train, x_test, y_train, y_test = LoadAndTransform.transform_data(raw_data=raw_data, use_smote=True)
     models = Models(x_train, x_test, y_train, y_test)
     models.train_models_and_save()
-    for model_name in models.model_names:
-        loaded_model = pickle.load(open(model_name, 'rb'))
-        y_pred = loaded_model.predict(x_test)
-        data = {'Accuracy': [metrics.accuracy_score(y_test, y_pred)],
-                'f1_score': [metrics.f1_score(y_test, y_pred)],
-                'Precision': [metrics.precision_score(y_test, y_pred)],
-                'Recall': [metrics.recall_score(y_test, y_pred)]}
-        logger.info('Model: {}. Metrics: {}'.format(model_name, data))
-        all_models_metrics.append(data)
-    writer = pd.ExcelWriter(excel_filenames, engine='openpyxl')
-    with writer:
-        for model_name, models_metrics in zip(models.model_names, all_models_metrics):
-            df = pd.DataFrame(models_metrics)
-            df.to_excel(writer, sheet_name=f'{model_name}')
+    models.evaluate()
 
 
 if '__main__' == __name__:
