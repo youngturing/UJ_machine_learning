@@ -104,10 +104,12 @@ class Models:
         for model_name in self.model_names:
             loaded_model = pickle.load(open(model_name, 'rb'))
             y_pred = loaded_model.predict(self.x_test)
-            data = {'Accuracy': [metrics.accuracy_score(self.y_test, y_pred)],
-                    'f1_score': [metrics.f1_score(self.y_test, y_pred)],
-                    'Precision': [metrics.precision_score(self.y_test, y_pred)],
-                    'Recall': [metrics.recall_score(self.y_test, y_pred)]}
+            data = {
+                'Accuracy': [metrics.accuracy_score(self.y_test, y_pred)],
+                'f1_score': [metrics.f1_score(self.y_test, y_pred)],
+                'Precision': [metrics.precision_score(self.y_test, y_pred)],
+                'Recall': [metrics.recall_score(self.y_test, y_pred)]
+            }
             logger.info('Model: {}. Metrics: {}'.format(model_name, data))
             self.all_models_metrics.append(data)
             self.save_metrics()
