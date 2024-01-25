@@ -3,10 +3,9 @@ import subprocess
 from zipfile import ZipFile
 
 
-def download_data_zip() -> None:
-    subprocess.run([
-        'kaggle', 'datasets', 'download', '-d', 'fedesoriano/stroke-prediction-dataset'
-    ])
+def download_data_zip():
+    command = 'kaggle datasets download -d fedesoriano/stroke-prediction-dataset'
+    subprocess.run(command.split(' '))
 
 
 def extract_data_to_csv(path: str) -> None:
@@ -15,7 +14,6 @@ def extract_data_to_csv(path: str) -> None:
     ----------
         path: downloaded filename with healthcare data.
     """
-    print(path)
     with ZipFile(path, 'r') as zip_obj:
         zip_obj.extractall()
 
