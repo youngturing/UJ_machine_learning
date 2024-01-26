@@ -3,7 +3,7 @@ import subprocess
 from zipfile import ZipFile
 
 
-def download_data_zip():
+def download_data_zip() -> None:
     command = 'kaggle datasets download -d fedesoriano/stroke-prediction-dataset'
     subprocess.run(command.split(' '))
 

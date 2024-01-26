@@ -30,8 +30,8 @@ class LoadAndTransform:
         """
         Parameters
         ----------
-            use_smote: boolean parameter indicating using SMOTE technique
             raw_data: pd.Dataframe with raw from Stroke database
+            use_smote: boolean parameter indicating using SMOTE technique
         Returns
         -------
             x_train_smote: training data oversampled with SMOTE algorithm
